@@ -25,22 +25,41 @@ F) GET ALL TASKS */
 // @access Private
 
 router.post('/', auth, async (req, res) => {
-    const user = await User.findOne({ user: req.user.id })
-    console.log("asfafna ", req.body);
+    // const user = await User.findOne({ user: req.user.id })
+    const user = await User.findById(req.user.id)
+    // console.log("user is ", user)
+    // console.log("asfafna ", req.body);
     if (user) {
         try {
-            const project = await new Project({
-                name: req.body.name,
-                tasks: req.body.tasks,
-                // comments: { _id: mongoose.Types.ObjectId(req.user.id), text: req.body.comments[0].text }
-            }).save();
+            if (req.body.comments) {
+                if (req.body.comments.length > 0) {
+                    var project = await new Project({
+                        name: req.body.name,
+                        tasks: req.body.tasks,
+                        comments: { _id: mongoose.Types.ObjectId(req.user.id), text: req.body.comments[0].text }
+                    }).save();
+                }
+            }
+            else {
+                var project = await new Project({
+                    name: req.body.name,
+                    tasks: req.body.tasks,
+                    // comments: { _id: mongoose.Types.ObjectId(req.user.id), text: req.body.comments[0].text }
+                }).save();
+            }
 
             if (project) {
                 // await User.findByIdAndUpdate({ user: req.user.id }, { $push: { projects: project._id } })
                 await user.projects.unshift(project._id);
                 await user.save();
             }
-            console.log(user)
+            // if (req.body.comments.length > 0) {
+            //     // console.log(req.body.comments[0].text);
+            //     res.json(req.body.comments[0].text)
+            // }
+            // else {
+            //     res.json({ msg: "no comment" })
+            // }
             res.json({ project })
 
         } catch (err) {

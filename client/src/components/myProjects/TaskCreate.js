@@ -64,6 +64,12 @@ const TaskCreate = () => {
 
   console.log(tasks);
 
+  const createProjectAndReinitializeFields = () => {
+    dispatch(createProject(projectName, tasks));
+    setProjectName('');
+    setTaskName('');
+  }
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -239,7 +245,7 @@ const TaskCreate = () => {
             </div>
           </div>
           <Button
-            onClick={() => { dispatch(createProject(projectName, tasks)) }}
+            onClick={() => { createProjectAndReinitializeFields() }}
             color="primary"
             style={{ alignSelf: "flex-end", marginRight: 16 }}
           >
