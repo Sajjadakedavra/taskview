@@ -10,3 +10,10 @@ export const ACCOUNT_DELETED = "ACCOUNT_DELETED";
 
 
 export const DATE_SENT = "DATE_SENT";
+
+
+export const PROJECT_CREATED = "PROJECT_CREATED";
+export const TASK_CREATED = "TASK_CREATED";
+export const GET_PROJECTS = "GET_PROJECTS";
+export const PROJECT_DELETED = "PROJECT_DELETED";
+export const TASK_DELETED = "TASK_DELETED";

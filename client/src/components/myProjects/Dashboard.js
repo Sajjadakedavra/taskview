@@ -1,4 +1,11 @@
-import { Button, ButtonGroup, Card, Popover } from "@material-ui/core";
+import {
+  Button,
+  ButtonGroup,
+  Card,
+  List,
+  Popover,
+  Typography,
+} from "@material-ui/core";
 import { useState } from "react";
 import Timeline from "./Timeline";
 
@@ -6,12 +13,10 @@ import AddIcon from "@material-ui/icons/Add";
 import NewLegend from "./NewLegend";
 import DateRange from "./DateRange";
 
-
 const styles = {
   cardContainer: {
     display: "flex",
     flexDirection: "column",
-
   },
   cardHeaderContainer: {
     display: "flex",
@@ -24,8 +29,15 @@ const styles = {
   },
 };
 
-const Dashboard = () => {
-  const [monthTimeline, setMonthTimeline] = useState(true); const [anchorEl, setAnchorEl] = useState(null);
+const legends = [
+  { color: "pink", name: "High Priority" },
+  { color: "royalblue", name: "Medium Priority" },
+  { color: "grey", name: "Low Priority" },
+];
+
+const Dashboard = ({ projects }) => {
+  const [monthTimeline, setMonthTimeline] = useState(true);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -37,7 +49,6 @@ const Dashboard = () => {
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
-
 
   return (
     <Card style={styles.cardContainer}>
@@ -65,15 +76,44 @@ const Dashboard = () => {
           </Button>
         </ButtonGroup>
       </div>
-      <div style={{ padding: 16, }}>
+      <div style={{ padding: 16 }}>
         {/*range picker*/}
         <DateRange />
-        <Timeline />
+        <Timeline monthTimeline={monthTimeline} projects={projects} />
         {/*legend with popover*/}
-        <Button aria-describedby={id}
-          onClick={handleClick} style={{ alignSelf: 'flex-start' }} size='small' endIcon={<AddIcon />}>
+        <Button
+          aria-describedby={id}
+          onClick={handleClick}
+          style={{ alignSelf: "flex-start" }}
+          size="small"
+          endIcon={<AddIcon />}
+        >
           Legend
         </Button>
+        <List style={{ display: "flex", flexDirection: "row" }}>
+          {legends.map((legend) => (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{
+                  margin: 8,
+                  width: 16,
+                  height: 16,
+                  borderRadius: 16,
+                  backgroundColor: legend.color,
+                }}
+              ></div>
+              <Typography variant="subtitle2">{legend.name}</Typography>
+            </div>
+          ))}
+        </List>
+
         <Popover
           id={id}
           open={open}
@@ -91,7 +131,6 @@ const Dashboard = () => {
           <NewLegend handleClose={handleClose} />
         </Popover>
       </div>
-
     </Card>
   );
 };

@@ -3,35 +3,59 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 import { useSelector } from "react-redux";
 import moment from "moment";
-
+import { useState } from "react";
+import ModifyProject from "./ModifyProject";
 
 const {
   AccordionSummary,
   Accordion,
   List,
   Typography,
+  Popover,
+  Button,
+  ButtonBase,
 } = require("@material-ui/core");
-
-const months = [
-  { name: "January", days: [1, 2, 3] },
-  { name: "January", days: [1, 2, 3, 5] },
-  { name: "January", days: [1, 2, 3] },
-  { name: "January", days: [1, 2, 3, 5] },
-  { name: "January", days: [1, 2, 3] },
-  { name: "January", days: [1, 2, 3, 5] },
-];
 
 const data = [
   {
     id: 0,
     name: "Project 1",
+    color: "royalblue",
+    tasks: [
+      {
+        id: 0,
+        name: "Task 1",
+        startDate: moment("21-9-2021", "DD-MM-YYYY"),
+        dueDate: moment("22-9-2021", "DD-MM-YYYY"),
+      },
+      {
+        id: 1,
+        name: "Task 2",
+        startDate: moment("19-3-2021", "DD-MM-YYYY"),
+        dueDate: moment("25-3-2021", "DD-MM-YYYY"),
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: "Project 2",
     color: "pink",
-    tasks: [{ id: 0, name: "Task 1", dueDate: new Date() }],
+    tasks: [
+      {
+        id: 0,
+        name: "Task 1",
+        startDate: moment("16-2-2021", "DD-MM-YYYY"),
+        dueDate: moment("16-2-2021", "DD-MM-YYYY"),
+      },
+      {
+        id: 1,
+        name: "Task 2",
+        startDate: moment("24-6-2021", "DD-MM-YYYY"),
+        dueDate: moment("28-6-2021", "DD-MM-YYYY"),
+      },
+    ],
   },
 ];
-
-let accordionWidth = 0;
-var diffe = 0
 
 const styles = {
   container: {
@@ -82,7 +106,7 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     borderStyle: "solid",
-    borderColor: "lightGrey",
+
     borderWidth: 1,
     width: 60,
     padding: 8,
@@ -107,16 +131,55 @@ const styles = {
   },
 };
 
-const Timeline = () => {
+const MonthTimeline = ({ projects }) => {
+  const dateObject = useSelector((state) => state.date);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const dateObject = useSelector(state => state.date);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-  const monthsDiff = moment(dateObject.date.endDateToUse).diff(dateObject.date.startDateToUse, "months") + 1;
-  accordionWidth = 300 + monthsDiff * 4 * 78
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
+  const startDate = dateObject.date.startDateToUse;
+  const endDate = dateObject.date.endDateToUse;
+  let referenceDate = moment(startDate).subtract(
+    moment(startDate).get("date") - 1,
+    "days"
+  );
+  let accordionWidth = 0;
+  let monthsDiff = 0;
 
-  let referenceDate = moment(dateObject.date.startDateToUse).subtract(parseInt(moment(dateObject.date.startDateToUse).format('D')) - 1, 'days')
+  (() => {
+    let febCount = 0;
+    let calDate = moment(startDate).subtract(
+      moment(startDate).get("date") - 1,
+      "days"
+    );
+    while (moment(endDate).isSameOrAfter(calDate)) {
+      monthsDiff++;
+      calDate.month() === 1 && febCount++;
+      calDate.add(1, "months");
+    }
 
+    accordionWidth +=
+      300 + (monthsDiff - febCount) * 5 * 78 + febCount * 4 * 78;
+  })();
+
+  const addMonthToRefDate = () => {
+    referenceDate.add(1, "months");
+  };
+
+  const resetRefDate = () => {
+    referenceDate = moment(startDate).subtract(
+      moment(startDate).get("date") - 1,
+      "days"
+    );
+  };
 
   return (
     <div style={styles.container}>
@@ -134,27 +197,38 @@ const Timeline = () => {
                   style={{
                     ...styles.monthsListContainer,
                     borderTopLeftRadius: index === 0 ? 8 : 0,
+                    borderTopRightRadius: index === monthsDiff - 1 ? 8 : 0,
                   }}
                 >
                   <Typography>{referenceDate.format("MMMM")}</Typography>
-                  {console.log("BB" + referenceDate.add(1, 'months'))}
                 </div>
                 <List disablePadding style={styles.flexRow}>
-                  {[7, 14, 21, 28].map((day) => (
-                    <div style={styles.daysListContainer}>
-                      <div>
-                        <Typography>{day}</Typography>
+                  {referenceDate.daysInMonth() > 28
+                    ? [7, 14, 21, 28, referenceDate.daysInMonth()].map(
+                      (day) => (
+                        <div style={styles.daysListContainer}>
+                          <div>
+                            <Typography>{day}</Typography>
+                          </div>
+                        </div>
+                      )
+                    )
+                    : [7, 14, 21, 28].map((day) => (
+                      <div style={styles.daysListContainer}>
+                        <div>
+                          <Typography>{day}</Typography>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </List>
+                {addMonthToRefDate()}
               </div>
             ))}
-
           </div>
         </div>
+        {resetRefDate()}
         <div>
-          {data.map((project) => (
+          {projects.map((project) => (
             <div>
               <Accordion
                 style={{ width: accordionWidth }}
@@ -165,7 +239,7 @@ const Timeline = () => {
                 <AccordionSummary
                   style={{
                     ...styles.accordion,
-                    backgroundColor: project.color,
+                    backgroundColor: "royalblue",
                   }}
                   expandIcon={<ExpandMoreIcon />}
                 >
@@ -183,43 +257,292 @@ const Timeline = () => {
                               : "lightGrey",
                         }}
                       >
-                        {console.log(task.name)}
                         {task.name}
                       </Typography>
                     </div>
+                    {/** rendering boxes */}
                     <div style={styles.flexRow}>
-                      {(referenceDate = moment(dateObject.date.startDateToUse).subtract(parseInt(moment(dateObject.date.startDateToUse).format('D')) - 1, 'days')) &&
-                        [...Array(monthsDiff)].map((x, index) => <div style={styles.flexRow}>
-                          {[...Array(4)].map((x, i) => (<div
-                            style={{
-                              ...styles.gridBoxContainer,
-                              backgroundColor:
-                                referenceDate === moment(task.dueDate)
-                                  ? project.color
-                                  : "#f5f5f5",
-                            }}
-                          >
-                            {referenceDate === moment(task.dueDate) && (
-                              <Typography style={{ color: "white" }}>
-                                {task.name}
-                              </Typography>
-                            )}
-                            {console.log("AA" + referenceDate.add(7, 'days'))}
-                            {console.log(referenceDate.format("YYYY-MM-DD"))}
-                          </div>))}
-                          {() => (referenceDate = referenceDate.subtract(parseInt(referenceDate.format('D')) - 1, 'days'))}
-                        </div>)}
+                      {[...Array(monthsDiff)].map((x, index) => (
+                        <div style={styles.flexRow}>
+                          {[
+                            ...Array(referenceDate.daysInMonth() > 28 ? 5 : 4),
+                          ].map((x, i) => {
+                            let compareResult = false;
+                            let taskvalue = " ";
 
+                            const strtDate = moment(task.startDate, "DD-MM-YYYY");
+                            const dueDate = moment(task.endDate, "DD-MM-YYYY");
+                            for (
+                              let j = 0;
+                              j < 7 &&
+                              referenceDate.get("date") <
+                              referenceDate.daysInMonth();
+                              j++
+                            ) {
+                              referenceDate.isBetween(strtDate, dueDate) &&
+                                (compareResult = true);
+
+                              referenceDate.format("DD MM YYYY") ===
+                                strtDate.format("DD MM YYYY") &&
+                                (compareResult = true) &&
+                                (taskvalue = strtDate.format("ddd DD"));
+                              referenceDate.format("DD MM YYYY") ===
+                                dueDate.format("DD MM YYYY") &&
+                                (compareResult = true) &&
+                                (taskvalue = dueDate.format("ddd DD"));
+
+                              referenceDate.add(1, "days");
+                            }
+
+                            return (
+                              <div
+                                style={{
+                                  ...styles.gridBoxContainer,
+                                  borderColor: compareResult
+                                    ? "royalblue"
+                                    : "lightGrey",
+                                  backgroundColor: compareResult
+                                    ? "royalblue"
+                                    : "#f5f5f5",
+                                }}
+                              >
+                                {compareResult && (
+                                  <ButtonBase
+                                    aria-describedby={id}
+                                    onClick={handleClick}
+                                    style={{ color: "white" }}
+                                  >
+                                    {taskvalue}
+                                  </ButtonBase>
+                                )}
+                                {/* {add7DaysToRefDate()} */}
+                              </div>
+                            );
+                          })}
+                          {(() => {
+                            referenceDate.add(1, "days");
+                          })()}
+                        </div>
+                      ))}
                     </div>
+                    {resetRefDate()}
                   </div>
                 ))}
               </Accordion>
             </div>
           ))}
         </div>
+        <Popover
+          id={id}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+          transformOrigin={{
+            vertical: "center",
+            horizontal: "center",
+          }}
+        >
+          <ModifyProject handleClose={handleClose} />
+        </Popover>
       </ScrollContainer>
     </div>
   );
+};
+
+const WeekTimeline = ({ projects }) => {
+  const dateObject = useSelector((state) => state.date);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
+  const startDate = dateObject.date.startDateToUse;
+  const endDate = dateObject.date.endDateToUse;
+  const weekssDiff = moment(endDate).diff(moment(startDate), "weeks") + 1;
+  let accordionWidth = 0;
+  accordionWidth = 300 + weekssDiff * 7 * 78;
+  let referenceDate = moment(startDate).subtract(
+    moment(startDate).day(),
+    "days"
+  );
+
+  const resetRefDate = () => {
+    referenceDate = moment(startDate).subtract(moment(startDate).day(), "days");
+  };
+
+  return (
+    <div style={styles.container}>
+      <ScrollContainer
+        style={styles.scrollContainer}
+        horizontal={true}
+        vertical={false}
+      >
+        <div>
+          <div style={{ width: 300 }}></div>
+          <div style={{ ...styles.flexRow, marginLeft: 300 }}>
+            {[...Array(weekssDiff)].map((x, index) => (
+              <div>
+                <div
+                  style={{
+                    ...styles.monthsListContainer,
+                    borderTopLeftRadius: index === 0 ? 8 : 0,
+                    borderTopRightRadius: index === weekssDiff - 1 ? 8 : 0,
+                  }}
+                >
+                  <Typography>
+                    {"Week of " + referenceDate.format("MM/YY")}
+                  </Typography>
+                </div>
+                {
+                  <List disablePadding style={styles.flexRow}>
+                    {[...Array(7)].map((x, i) => {
+                      const day = referenceDate.format("ddd");
+                      const date = referenceDate.format("DD");
+                      referenceDate.add(1, "days");
+                      return (
+                        <div style={styles.daysListContainer}>
+                          <div>
+                            <Typography variant="caption">{day}</Typography>
+                            <Typography>{date}</Typography>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </List>
+                }
+              </div>
+            ))}
+          </div>
+        </div>
+        {resetRefDate()}
+        <div>
+          {projects.map((project) => (
+            <div>
+              <Accordion
+                style={{ width: accordionWidth }}
+                square
+                defaultExpanded={true}
+                elevation={0}
+              >
+                <AccordionSummary
+                  style={{
+                    ...styles.accordion,
+                    backgroundColor: "royalblue",
+                  }}
+                  expandIcon={<ExpandMoreIcon />}
+                >
+                  <Typography>{project.name}</Typography>
+                </AccordionSummary>
+                {project.tasks.map((task, index) => (
+                  <div style={styles.flexRow}>
+                    <div style={styles.taskContainer}>
+                      <Typography
+                        style={{
+                          ...styles.taskText,
+                          borderBottomColor:
+                            index === project.tasks.length - 1
+                              ? "white"
+                              : "lightGrey",
+                        }}
+                      >
+                        {task.name}
+                      </Typography>
+                    </div>
+                    {/** rendering boxes */}
+                    {[...Array(weekssDiff)].map((x, index) => (
+                      <div style={styles.flexRow}>
+                        {[...Array(7)].map((x, i) => {
+                          let compareResult = false;
+                          let taskvalue = " ";
+
+                          const strtDate = moment(task.startDate, "DD-MM-YYYY");
+                          const dueDate = moment(task.endDate, "DD-MM-YYYY");
+
+
+                          referenceDate.isBetween(strtDate, dueDate) &&
+                            (compareResult = true);
+
+                          referenceDate.format("DD MM YYYY") ===
+                            strtDate.format("DD MM YYYY") &&
+                            (compareResult = true) &&
+                            (taskvalue = strtDate.format("ddd DD"));
+
+                          referenceDate.format("DD MM YYYY") ===
+                            dueDate.format("DD MM YYYY") &&
+                            (compareResult = true) &&
+                            (taskvalue = dueDate.format("ddd DD"));
+
+                          referenceDate.add(1, "days");
+
+                          return (
+                            <div
+                              style={{
+                                ...styles.gridBoxContainer,
+                                borderColor: compareResult
+                                  ? "royalblue"
+                                  : "lightGrey",
+                                backgroundColor: compareResult
+                                  ? "royalblue"
+                                  : "#f5f5f5",
+                              }}
+                            >
+                              {compareResult && (
+                                <ButtonBase
+                                  aria-describedby={id}
+                                  onClick={handleClick}
+                                  style={{ color: "white" }}
+                                >
+                                  {taskvalue}
+                                </ButtonBase>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
+
+                    {resetRefDate()}
+                  </div>
+                ))}
+              </Accordion>
+            </div>
+          ))}
+        </div>
+        <Popover
+          id={id}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+          transformOrigin={{
+            vertical: "center",
+            horizontal: "center",
+          }}
+        >
+          <ModifyProject handleClose={handleClose} />
+        </Popover>
+      </ScrollContainer>
+    </div>
+  );
+};
+
+const Timeline = ({ monthTimeline, projects }) => {
+  console.log("projects are: ", projects);
+  return monthTimeline ? <MonthTimeline projects={projects} /> : <WeekTimeline projects={projects} />;
 };
 
 export default Timeline;

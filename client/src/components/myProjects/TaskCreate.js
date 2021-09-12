@@ -1,9 +1,14 @@
-import { Button, InputLabel, TextField, Card, List } from "@material-ui/core";
+import { Button, InputLabel, TextField, Card, List, Popover } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import { DatePicker } from "@material-ui/pickers";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import DateTime from "./DateTime";
+import DateRangeIcon from '@material-ui/icons/DateRange';
 import Login from "./Login";
+import DateRange from "./DateRange";
+
+import { createProject } from "../../store/action/project";
 
 const styles = {
   card: {
@@ -23,42 +28,54 @@ const styles = {
   },
 };
 
-const TaskCreate = () => {
-  const [createSelected, setCreateSelected] = useState(true);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [selectedDate, handleDateChange] = useState(new Date());
-  const [tasksCount, setTasksCount] = useState(1);
 
+/**
+ * name ,
+ * tasks :[
+ * {
+ *  name:"TASK NAME",
+ *  startDate:"",
+ *  dueDate:""
+ * }]
+ */
+
+const TaskCreate = () => {
+
+  const dispatch = useDispatch();
+
+  const [createSelected, setCreateSelected] = useState(true);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const [projectName, setProjectName] = useState('');
+  const [taskName, setTaskName] = useState('');
+
+  const dateValueObj = useSelector(state => state.date);
+  const projectObj = useSelector(state => state.project);
+  // console.log(projectObj);
+
+  const tasks = [
+    {
+      name: taskName,
+      description: '',
+      startDate: dateValueObj.date.startDateToUse,
+      endDate: dateValueObj.date.endDateToUse
+    }
+  ];
+
+  console.log(tasks);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
   const isAuthenticatedVal = useSelector(state => state.auth);
 
-  const TaskRow = () => {
-    return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-        }}
-      >
-        <TextField
-          fullWidth={true}
-          variant="outlined"
-          size="small"
-          placeholder="Name"
-        />
-        <DatePicker
-          autoOk
-          variant="inline"
-          inputVariant="outlined"
-          size="small"
-          format="MM/dd/yyyy"
-          value={selectedDate}
-          InputAdornmentProps={{ position: "start" }}
-          onChange={(date) => handleDateChange(date)}
-        />
-      </div>
-    );
-  };
 
   const CreateView = () =>
     isAuthenticatedVal.isAuthenticated ? (
@@ -71,7 +88,7 @@ const TaskCreate = () => {
         >
           <div style={{ paddingTop: 8, paddingBottom: 24 }}>
             <InputLabel style={{ margin: 8 }}>Project</InputLabel>
-            <TextField variant="outlined" size="small" placeholder="Name" />
+            <TextField variant="outlined" size="small" placeholder="Name" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
           </div>
           <div style={{ paddingTop: 8, paddingBottom: 8 }}>
             <div
@@ -83,25 +100,29 @@ const TaskCreate = () => {
               }}
             >
               <InputLabel style={{ margin: 8 }}>Task</InputLabel>
-              <InputLabel style={{ margin: 8 }}>Due Date</InputLabel>
+              {/* <InputLabel style={{ margin: 8 }}>Due Date</InputLabel> */}
+              <InputLabel style={{ marginLeft: 8, marginTop: 10 }}>Date</InputLabel>
+
             </div>
-            <List disablePadding>
-              {[...Array(tasksCount)].map((x, i) => (
-                <TaskRow key={i} />
-              ))}
-            </List>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <TextField
+                fullWidth={true}
+                variant="outlined"
+                size="small"
+                placeholder="Name"
+              />
+              <Button aria-describedby={id}
+                onClick={handleClick}
+                size="small"
+              ><DateRangeIcon /></Button>
+            </div>
           </div>
-          <Button
-            onClick={() => {
-              setTasksCount(tasksCount + 1);
-            }}
-            style={{ alignSelf: "flex-start" }}
-            color="primary"
-            size="small"
-            startIcon={<AddIcon />}
-          >
-            Add a new Task
-          </Button>
         </div>
         <Button
           onClick={() => { }}
@@ -110,6 +131,22 @@ const TaskCreate = () => {
         >
           Next
         </Button>
+        <Popover
+          id={id}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+        >
+          <DateRange handleClose={handleClose} />
+        </Popover>
       </div>
     ) : (
       <Login />
@@ -152,7 +189,82 @@ const TaskCreate = () => {
           Open
         </Button>
       </div>
-      {createSelected && <CreateView />}
+
+      {createSelected && isAuthenticatedVal.isAuthenticated ? (
+        <div style={styles.contentContainer}>
+          <div
+            style={{
+              padding: 16,
+              paddingTop: 0,
+            }}
+          >
+            <div style={{ paddingTop: 8, paddingBottom: 24 }}>
+              <InputLabel style={{ margin: 8 }}>Project</InputLabel>
+              <TextField variant="outlined" size="small" placeholder="Name" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
+            </div>
+            <div style={{ paddingTop: 8, paddingBottom: 8 }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  paddingRight: 16,
+                }}
+              >
+                <InputLabel style={{ margin: 8 }}>Task</InputLabel>
+                {/* <InputLabel style={{ margin: 8 }}>Due Date</InputLabel> */}
+                <InputLabel style={{ marginLeft: 8, marginTop: 10 }}>Date</InputLabel>
+
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <TextField
+                  fullWidth={true}
+                  variant="outlined"
+                  size="small"
+                  placeholder="Name"
+                  value={taskName}
+                  onChange={(e) => setTaskName(e.target.value)}
+                />
+                <Button aria-describedby={id}
+                  onClick={handleClick}
+                  size="small"
+                ><DateRangeIcon /></Button>
+              </div>
+            </div>
+          </div>
+          <Button
+            onClick={() => { dispatch(createProject(projectName, tasks)) }}
+            color="primary"
+            style={{ alignSelf: "flex-end", marginRight: 16 }}
+          >
+            Next
+          </Button>
+          <Popover
+            id={id}
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "left",
+            }}
+          >
+            <DateRange handleClose={handleClose} />
+          </Popover>
+        </div>
+      ) : (
+        <Login />
+      )}
       {!createSelected && <OpenView />}
     </Card>
   );

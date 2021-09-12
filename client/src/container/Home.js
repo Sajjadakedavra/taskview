@@ -8,19 +8,31 @@ import { useSelector } from 'react-redux';
 
 const Home = () => {
 
-    const isAuthentiatedVal = useSelector(state => state.auth);
-
+    const isAuthenticatedVal = useSelector(state => state.auth);
+    const projectObj = useSelector(state => state.project);
+    console.log("projects: ", projectObj.projects?.projects?.length)
     return (
-        <div style={{ display: "flex", flexDirection: "row", justifyContent: 'space-between', padding: 24 }}>
-            <div style={{ width: '20%' }}>
-                <TaskCreate />
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                padding: 24,
+            }}
+        >
+            <div style={{ width: "20%" }}>
+                {isAuthenticatedVal.isAuthenticated ? (
+                    projectObj.projects?.projects?.length > 0 ? (<SideView />) :
+                        (<TaskCreate />)
+                ) : (<TaskCreate />)}
+                {/* {projectObj.projects.projects.length === 0 ? <TaskCreate /> : <SideView />} */}
             </div>
-            <div style={{ width: '78%' }}>
-                {isAuthentiatedVal.isAuthentiated && <Dashboard />}
-                {/* <Timeline/> */}
+            <div style={{ width: "78%" }}>
+                {/* {console.log("projets: ", projectObj.projects.projects.length)} */}
+                {isAuthenticatedVal.isAuthenticated && projectObj.projects?.projects?.length > 0 && <Dashboard projects={projectObj.projects.projects} />}
             </div>
         </div>
-    )
+    );
 }
 
 

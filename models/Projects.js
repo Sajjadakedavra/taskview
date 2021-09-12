@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const ProjectSchema = new mongoose.Schema({
     name: {
@@ -15,12 +16,42 @@ const ProjectSchema = new mongoose.Schema({
                 type: String
             },
             startDate: {
-                type: Date
+                type: String
             },
             endDate: {
-                type: Date,
-                req: false
+                type: String,
+                req: false //true 
             }
+        }
+    ],
+    comments: [
+        {
+            user: {
+                type: Schema.Types.ObjectId,
+                ref: 'projects'
+            },
+            text: {
+                type: String,
+                required: true
+            }
+        }
+    ],
+    alteration: [
+        {
+            user: {
+                type: Schema.Types.ObjectId,
+                ref: 'projects'
+            },
+            editType: {
+                type: String,
+                required: true
+            },
+            documentRef: {
+                type: Schema.Types.ObjectId
+            }
+            // comment: {
+            //     type: String
+            // }
         }
     ]
 });

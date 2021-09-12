@@ -1,6 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Fragment, useEffect } from 'react';
 import Navbar from './layout/Navbar';
 import SideView from './components/myProjects/SideView';
@@ -30,7 +30,8 @@ const App = () => {
 
 
   const dispatch = useDispatch();
-
+  const projectObj = useSelector(state => state.project);
+  console.log("fecthed projects are: ", projectObj.projects); //for all projects
 
   //get user details if user is logged in already
   useEffect(() => {
