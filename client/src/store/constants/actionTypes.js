@@ -17,3 +17,4 @@ export const TASK_CREATED = "TASK_CREATED";
 export const GET_PROJECTS = "GET_PROJECTS";
 export const PROJECT_DELETED = "PROJECT_DELETED";
 export const TASK_DELETED = "TASK_DELETED";
+export const TASK_EDITED = "TASK_EDITED";

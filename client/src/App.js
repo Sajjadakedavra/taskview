@@ -38,6 +38,9 @@ const App = () => {
     dispatch(loadUser());
   }, [dispatch]);
 
+  useEffect(() => {
+    localStorage.getItem("token") && socket.getInstance(isAuthenticatedVal.user.name); //user name here
+  }, [isAuthenticatedVal]);
 
 
   return (

@@ -11,6 +11,7 @@ import {
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import AddIcon from "@material-ui/icons/Add";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import NewProject from "./NewProject";
 
 const data = [
@@ -47,6 +48,10 @@ const styles = {
 };
 
 const SideView = () => {
+
+  const projectObj = useSelector(state => state.project);
+  // console.log("side view projects: ", projectObj.projects.projects);
+
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
@@ -91,7 +96,7 @@ const SideView = () => {
       </Popover>
 
       <List disablePadding>
-        {data.map((project) => (
+        {projectObj.projects.projects.map((project) => (
           <div>
             <Accordion square>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>

@@ -46,7 +46,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Navbar = () => {
-
+  // const checking = useSelector(state => state.auth)
+  // console.log(checking)
   const dispatch = useDispatch();
 
   const [anchorEl, setAnchorEl] = useState(null);

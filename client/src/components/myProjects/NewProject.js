@@ -9,8 +9,14 @@ import {
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import CancelIcon from "@material-ui/icons/Cancel";
+import DateRangeIcon from '@material-ui/icons/DateRange';
+import { Popover } from "@material-ui/core";
 import { KeyboardDatePicker } from "@material-ui/pickers";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+import DateRange from "./DateRange";
+import { createProject } from "../../store/action/project";
 
 const styles = {
   cardContainer: {
@@ -35,8 +41,45 @@ const styles = {
 };
 
 const NewProject = ({ handleClose }) => {
+
+  const dispatch = useDispatch();
+
   const [selectedDate, handleDateChange] = useState(new Date());
   const [tasksCount, setTasksCount] = useState(1);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const [projectName, setProjectName] = useState('');
+  const [taskName, setTaskName] = useState('');
+
+  const dateValueObj = useSelector(state => state.date);
+
+  const tasks = [
+    {
+      name: taskName,
+      description: '',
+      startDate: dateValueObj.date.startDateToUse,
+      endDate: dateValueObj.date.endDateToUse
+    }
+  ];
+
+  console.log(tasks);
+
+  const createProjectAndReinitializeFields = () => {
+    dispatch(createProject(projectName, tasks));
+    setProjectName('');
+    setTaskName('');
+  }
+
+
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
+
 
   const TaskRow = () => {
     return (
@@ -87,7 +130,7 @@ const NewProject = ({ handleClose }) => {
         >
           <div style={{ paddingTop: 8, paddingBottom: 24 }}>
             <InputLabel style={{ margin: 8 }}>Project</InputLabel>
-            <TextField variant="outlined" size="small" placeholder="Name" />
+            <TextField variant="outlined" size="small" placeholder="Name" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
           </div>
           <div style={{ paddingTop: 8, paddingBottom: 8 }}>
             <div
@@ -99,15 +142,47 @@ const NewProject = ({ handleClose }) => {
               }}
             >
               <InputLabel style={{ margin: 8 }}>Task</InputLabel>
-              <InputLabel style={{ margin: 8 }}>Due Date</InputLabel>
+              {/* <InputLabel style={{ margin: 8 }}>Due Date</InputLabel> */}
+              <InputLabel style={{ marginLeft: 8, marginTop: 10 }}>Date</InputLabel>
+
             </div>
-            <List disablePadding>
+            {/* <List disablePadding>
               {[...Array(tasksCount)].map((x, i) => (
                 <TaskRow key={i} />
               ))}
-            </List>
+            </List> */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <TextField
+                fullWidth={true}
+                variant="outlined"
+                size="small"
+                placeholder="Name"
+                value={taskName}
+                onChange={(e) => setTaskName(e.target.value)}
+              />
+              <Button aria-describedby={id}
+                onClick={handleClick}
+                size="small"
+              ><DateRangeIcon /></Button>
+              {/* <KeyboardDatePicker
+                autoOk
+                variant="inline"
+                inputVariant="outlined"
+                size="small"
+                format="MM/dd/yyyy"
+                value={selectedDate}
+                InputAdornmentProps={{ position: "start" }}
+                onChange={(date) => handleDateChange(date)}
+              /> */}
+            </div>
           </div>
-          <Button
+          {/* <Button
             onClick={() => {
               setTasksCount(tasksCount + 1);
             }}
@@ -117,11 +192,27 @@ const NewProject = ({ handleClose }) => {
             startIcon={<AddIcon />}
           >
             Add a new Task
-          </Button>
+          </Button> */}
         </div>
-        <Button onClick={() => { }} color="primary" size="small">
+        <Button onClick={() => { createProjectAndReinitializeFields() }} color="primary" size="small">
           Done
         </Button>
+        <Popover
+          id={id}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+        >
+          <DateRange handleClose={handleClose} />
+        </Popover>
       </div>
     </Card>
   );

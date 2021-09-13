@@ -162,60 +162,22 @@ router.patch('/:project_id/:task_id', auth, async (req, res) => {
         const project = await Project.findById(req.params.project_id);
         const taskArr = project.tasks;
 
+        const commentsArr = req.body.comments.map(cmnt => ({ ...cmnt, user: mongoose.Types.ObjectId(req.user.id) }));
+        console.log(commentsArr)
+
         let index = taskArr.findIndex(task => task._id.toString() === req.params.task_id);
 
         if (index > -1) {
             taskArr[index] = { _id: mongoose.Types.ObjectId(req.params.task_id), ...req.body.task }
-            await Project.updateOne({ _id: req.params.project_id }, { tasks: taskArr });
+            // if (req.body.text) {
+            console.log("if running")
+            await Project.updateOne({ _id: req.params.project_id }, { name: req.body.name, comments: commentsArr, tasks: taskArr, $push: { alteration: { user: req.user.id, editType: req.body.editType, documentRef: req.params.task_id } } });
+            // }
+            // else {
+            // await Project.updateOne({ _id: req.params.project_id }, { name: req.body.name, tasks: taskArr, $push: { alteration: { user: req.user.id, editType: req.body.editType, documentRef: req.params.task_id } } });
+            // }
         }
 
-        // taskArr.forEach(task => {
-        //     if (task._id.toString() === req.params.task_id) {
-
-        //     }
-        // })
-
-        // project.tasks.map(async (task, index) => {
-        //     if (task._id.toString() === req.params.task_id) {
-
-        //     }
-        // });
-
-        // if (project.tasks.filter(task => task._id.toString() === req.params.task_id).length > 0) {
-        //     project.tasks.map(async (task, index) => {
-        //         // console.log("index is: ", index);
-        //         if (task._id.toString() === req.params.task_id) {
-        //             // console.log("index matched at: ", index);
-        //             project.tasks.splice(index, 1);
-        //             await Project.updateOne(
-        //                 { _id: req.params.project_id },
-        //                 { $push: { tasks: req.body.task } },
-        //             );
-        //         }
-        //     });
-        // }
-
-
-        // const projects = await Project.find({
-        //     'tasks._id': {
-        //         $in:
-        //             ids
-
-        //     }
-        // }, function (err, docs) {
-        //     if (err) throw err;
-        //     console.log(docs);
-        // });
-
-        // let updated = await Project.findOneAndUpdate(
-        //     { _id: req.params.project_id, "tasks._id": req.params.task_id },
-        //     { task: req.body.task },
-        //     { new: true, }
-        // );
-        // console.log(updated);
-
-
-        // await project.save();
         res.json(project)
     } catch (err) {
         console.error(err.message);

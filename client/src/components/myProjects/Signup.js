@@ -36,7 +36,7 @@ const Signup = () => {
 
   const dispatch = useDispatch();
 
-  const isAuthentiatedVal = useSelector(state => state.auth);
+  const isAuthenticatedVal = useSelector(state => state.auth);
 
 
 
@@ -57,6 +57,9 @@ const Signup = () => {
 
 
   const [rememberChecked, setRememberChecked] = useState(true);
+
+  { isAuthenticatedVal.isAuthenticated && <Redirect to='/' /> }
+
   return (
     <Card style={styles.card}>
 

@@ -1,4 +1,4 @@
-import { PROJECT_CREATED, TASK_CREATED, GET_PROJECTS, PROJECT_DELETED, TASK_DELETED } from "../constants/actionTypes";
+import { PROJECT_CREATED, TASK_CREATED, GET_PROJECTS, PROJECT_DELETED, TASK_DELETED, TASK_EDITED } from "../constants/actionTypes";
 import axios from "axios";
 
 export const createProject = (name, tasks) => async dispatch => {
@@ -23,7 +23,7 @@ export const createProject = (name, tasks) => async dispatch => {
 }
 
 
-export const createTask = ({ task }) => async dispatch => {
+export const createTask = (project_id, tasks, editType) => async dispatch => {
 
     const config = {
         headers: {
@@ -31,11 +31,33 @@ export const createTask = ({ task }) => async dispatch => {
         }
     }
 
-    const body = { task };
+    const body = { tasks, editType };
 
     try {
-        const res = await axios.put('/api/projects', body, config);
+        const res = await axios.put(`/api/projects/${project_id}`, body, config);
         dispatch({ type: TASK_CREATED, payload: res.data });
+
+    } catch (err) {
+        if (err) {
+            console.error(err);
+        }
+    }
+}
+
+
+export const editTask = (project_id, task_id, projectName, comments, tasks, alteration) => async dispatch => {
+
+    const config = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+
+    const body = { name: projectName, tasks, comments, alteration };
+
+    try {
+        const res = await axios.put(`/api/projects/${project_id}/${task_id}`, body, config);
+        dispatch({ type: TASK_EDITED, payload: res.data });
 
     } catch (err) {
         if (err) {

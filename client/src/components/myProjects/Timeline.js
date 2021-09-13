@@ -133,7 +133,16 @@ const styles = {
 
 const MonthTimeline = ({ projects }) => {
   const dateObject = useSelector((state) => state.date);
+  console.log("----------- ", dateObject.date)
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const [project, setProject] = useState({});
+  // console.log("project id to be sent as prop is: ", projectId);
+
+  const handleClickAndSendProps = (event, project, index) => {
+    handleClick(event);
+    setProject({ ...project, index });
+  }
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -230,6 +239,7 @@ const MonthTimeline = ({ projects }) => {
         <div>
           {projects.map((project) => (
             <div>
+              {/* {setProjectId(project._id)} */}
               <Accordion
                 style={{ width: accordionWidth }}
                 square
@@ -262,7 +272,7 @@ const MonthTimeline = ({ projects }) => {
                     </div>
                     {/** rendering boxes */}
                     <div style={styles.flexRow}>
-                      {[...Array(monthsDiff)].map((x, index) => (
+                      {[...Array(monthsDiff)].map((x) => (
                         <div style={styles.flexRow}>
                           {[
                             ...Array(referenceDate.daysInMonth() > 28 ? 5 : 4),
@@ -309,8 +319,8 @@ const MonthTimeline = ({ projects }) => {
                                 {compareResult && (
                                   <ButtonBase
                                     aria-describedby={id}
-                                    onClick={handleClick}
-                                    style={{ color: "white" }}
+                                    onClick={event => handleClickAndSendProps(event, project, index)}
+                                    style={{ color: "white", width: 60 }}
                                   >
                                     {taskvalue}
                                   </ButtonBase>
@@ -346,7 +356,7 @@ const MonthTimeline = ({ projects }) => {
             horizontal: "center",
           }}
         >
-          <ModifyProject handleClose={handleClose} />
+          <ModifyProject handleClose={handleClose} project={project} />
         </Popover>
       </ScrollContainer>
     </div>
@@ -356,6 +366,15 @@ const MonthTimeline = ({ projects }) => {
 const WeekTimeline = ({ projects }) => {
   const dateObject = useSelector((state) => state.date);
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const [project, setProject] = useState({});
+  // console.log("project id to be sent as prop is: ", projectId);
+
+  const handleClickAndSendProps = (event, project, index) => {
+    handleClick(event);
+    setProject({ ...project, index });
+  }
+
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -429,6 +448,7 @@ const WeekTimeline = ({ projects }) => {
         <div>
           {projects.map((project) => (
             <div>
+              {/* {setProjectId(project._id)} */}
               <Accordion
                 style={{ width: accordionWidth }}
                 square
@@ -460,7 +480,7 @@ const WeekTimeline = ({ projects }) => {
                       </Typography>
                     </div>
                     {/** rendering boxes */}
-                    {[...Array(weekssDiff)].map((x, index) => (
+                    {[...Array(weekssDiff)].map((x) => (
                       <div style={styles.flexRow}>
                         {[...Array(7)].map((x, i) => {
                           let compareResult = false;
@@ -500,8 +520,8 @@ const WeekTimeline = ({ projects }) => {
                               {compareResult && (
                                 <ButtonBase
                                   aria-describedby={id}
-                                  onClick={handleClick}
-                                  style={{ color: "white" }}
+                                  onClick={event => handleClickAndSendProps(event, project, index)}
+                                  style={{ color: "white", width: 60 }}
                                 >
                                   {taskvalue}
                                 </ButtonBase>
@@ -533,7 +553,7 @@ const WeekTimeline = ({ projects }) => {
             horizontal: "center",
           }}
         >
-          <ModifyProject handleClose={handleClose} />
+          <ModifyProject handleClose={handleClose} project={project} />
         </Popover>
       </ScrollContainer>
     </div>
@@ -542,7 +562,9 @@ const WeekTimeline = ({ projects }) => {
 
 const Timeline = ({ monthTimeline, projects }) => {
   console.log("projects are: ", projects);
-  return monthTimeline ? <MonthTimeline projects={projects} /> : <WeekTimeline projects={projects} />;
+  const projectObj = useSelector(state => state.project);
+  //fetching projects again and sending instead of using prop. no difference detected
+  return monthTimeline ? <MonthTimeline projects={projectObj.projects.projects} /> : <WeekTimeline projects={projectObj.projects.projects} />;
 };
 
 export default Timeline;

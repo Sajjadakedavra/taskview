@@ -56,8 +56,8 @@ export default function DateRange() {
 
     const handleChangeForStartDate = (e) => {
         setStartDate(e.target.value);
-
-        setStartDateToUse(e.target.value);
+        // setStartDateToUse(e.target.value);
+        setStartDateToUse(moment(e.target.value).format("DD MM YYYYThh:mm"));
 
         // dispatch(dateForTimeline({ startDateToUse: moment(e.target.value).format("MMMM Do YYYY"), endDateToUse }));
         dispatch(dateForTimeline({ startDateToUse: e.target.value, endDateToUse }));
@@ -66,8 +66,8 @@ export default function DateRange() {
 
     const handleChangeForEndDate = (e) => {
         setEndDate(e.target.value);
-
-        setEndDateToUse(e.target.value);
+        // setEndDateToUse(e.target.value);
+        setEndDateToUse(moment(e.target.value).format("DD MM YYYYThh:mm"));
 
         dispatch(dateForTimeline({ startDateToUse, endDateToUse: e.target.value }));
     };
