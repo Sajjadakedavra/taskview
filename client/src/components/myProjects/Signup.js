@@ -1,6 +1,6 @@
-import { Redirect } from 'react-router-dom';
-import { register } from '../../store/action/auth';
-import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from "react-router-dom";
+import { register } from "../../store/action/auth";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
   Button,
@@ -13,6 +13,7 @@ import {
   Card,
 } from "@material-ui/core";
 import { useState } from "react";
+import { useEffect } from "react";
 
 const styles = {
   card: {
@@ -30,48 +31,63 @@ const styles = {
   },
 };
 
-
-
 const Signup = () => {
-
   const dispatch = useDispatch();
+  const history = useHistory();
+  const isAuthenticatedVal = useSelector((state) => state.auth);
 
-  const isAuthenticatedVal = useSelector(state => state.auth);
-
-
+  isAuthenticatedVal.isAuthenticated && history.push("/");
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: ''
+    name: "",
+    email: "",
+    password: "",
   });
 
   const { name, email, password } = formData;
 
-  const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const onChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const onSubmit = async e => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     dispatch(register({ name, email, password }));
   };
 
-
   const [rememberChecked, setRememberChecked] = useState(true);
-
-  { isAuthenticatedVal.isAuthenticated && <Redirect to='/' /> }
 
   return (
     <Card style={styles.card}>
-
       <div style={styles.container}>
         <InputLabel style={{ marginBottom: 4 }}>Name</InputLabel>
-        <TextField name="name" value={name} onChange={e => onChange(e)} style={{ marginBottom: 8 }} variant="outlined" size="small" />
+        <TextField
+          name="name"
+          value={name}
+          onChange={(e) => onChange(e)}
+          style={{ marginBottom: 8 }}
+          variant="outlined"
+          size="small"
+        />
 
         <InputLabel style={{ marginBottom: 4 }}>Email</InputLabel>
-        <TextField name="email" value={email} onChange={e => onChange(e)} style={{ marginBottom: 8 }} variant="outlined" size="small" />
+        <TextField
+          name="email"
+          value={email}
+          onChange={(e) => onChange(e)}
+          style={{ marginBottom: 8 }}
+          variant="outlined"
+          size="small"
+        />
 
         <InputLabel style={{ marginBottom: 4 }}>Password</InputLabel>
-        <TextField name="password" value={password} onChange={e => onChange(e)} style={{ marginBottom: 8 }} variant="outlined" size="small" />
+        <TextField
+          name="password"
+          value={password}
+          onChange={(e) => onChange(e)}
+          style={{ marginBottom: 8 }}
+          variant="outlined"
+          size="small"
+        />
         <FormControlLabel
           style={{ marginBottom: 8 }}
           control={
@@ -86,7 +102,7 @@ const Signup = () => {
         />
         <Typography style={{ marginBottom: 8 }} align="center" variant="body2">
           Have an account?{" "}
-          <Link to="/signup" variant="body2">
+          <Link onClick={() => history.push("/login")} variant="body2">
             {"Sign in"}
           </Link>
         </Typography>
@@ -100,5 +116,3 @@ const Signup = () => {
 };
 
 export default Signup;
-
-

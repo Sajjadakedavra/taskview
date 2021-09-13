@@ -1,21 +1,22 @@
-import React, { Fragment, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { logout } from '../store/action/auth';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { Fragment, useState } from "react";
+import { Link } from "react-router-dom";
+import { logout } from "../store/action/auth";
+import { useDispatch, useSelector } from "react-redux";
 
-import { makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
-import ShareIcon from '@material-ui/icons/Share';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import ShareMenu from '../components/myProjects/ShareMenu';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import { Popover } from '@material-ui/core';
+import { makeStyles } from "@material-ui/core/styles";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import MenuIcon from "@material-ui/icons/Menu";
+import ShareIcon from "@material-ui/icons/Share";
+import NotificationsIcon from "@material-ui/icons/Notifications";
+import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+import ShareMenu from "../components/myProjects/ShareMenu";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import { Popover } from "@material-ui/core";
+import Notifications from "../components/myProjects/Notifications";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -32,17 +33,16 @@ const useStyles = makeStyles((theme) => ({
     // top: "2px",
     display: "flex",
     flexDirection: "row",
-
   },
   button: {
     margin: theme.spacing(1),
   },
   buttonBorder: {
-    borderRadius: "20px"
+    borderRadius: "20px",
   },
   buttonSpacing: {
-    left: "15px"
-  }
+    left: "15px",
+  },
 }));
 
 const Navbar = () => {
@@ -51,6 +51,17 @@ const Navbar = () => {
   const dispatch = useDispatch();
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [showShare, setShowShare] = useState(true);
+
+  const handleCLickShare = (event) => {
+    setShowShare(true);
+    handleClick(event);
+  };
+
+  const handleCLickNotif = (event) => {
+    setShowShare(false);
+    handleClick(event);
+  };
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -65,12 +76,20 @@ const Navbar = () => {
 
   const classes = useStyles();
 
-  const isAuthenticatedVal = useSelector(state => state.auth);
+  const isAuthenticatedVal = useSelector((state) => state.auth);
 
   const guestLinks = (
     <Fragment>
-      <Link to='/login'><Button color="primary" className={classes.placement}>Login</Button></Link>
-      <Link to='/signup'><Button color="primary" className={classes.placement}>Signup</Button></Link>
+      <Link to="/login">
+        <Button color="primary" className={classes.placement}>
+          Login
+        </Button>
+      </Link>
+      <Link to="/signup">
+        <Button color="primary" className={classes.placement}>
+          Signup
+        </Button>
+      </Link>
     </Fragment>
   );
 
@@ -78,11 +97,11 @@ const Navbar = () => {
     <Fragment>
       <Button
         aria-describedby={id}
-        onClick={handleClick}
+        onClick={(event) => handleCLickShare(event)}
         variant="contained"
         style={{ backgroundColor: "#042f66", color: "white" }}
         size="small"
-        className={classes.button, classes.buttonBorder}
+        className={(classes.button, classes.buttonBorder)}
         startIcon={<ShareIcon />}
       >
         Share
@@ -91,21 +110,19 @@ const Navbar = () => {
       <Button
         name="notifications"
         aria-describedby={id}
-        onClick={handleClick}
+        onClick={(event) => handleCLickNotif(event)}
         style={{ color: "#042f66" }}
         size="large"
         className={classes.buttonSpacing}
         startIcon={<NotificationsIcon />}
-      >
-      </Button>
+      ></Button>
 
       <Button
         name="profile"
         style={{ color: "#042f66" }}
         size="large"
         startIcon={<AccountCircleIcon />}
-      >
-      </Button>
+      ></Button>
 
       <Button
         name="logout"
@@ -113,8 +130,7 @@ const Navbar = () => {
         size="large"
         onClick={() => dispatch(logout())}
         startIcon={<ExitToAppIcon />}
-      >
-      </Button>
+      ></Button>
     </Fragment>
   );
 
@@ -126,7 +142,11 @@ const Navbar = () => {
             {/* <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
               <MenuIcon />
             </IconButton> */}
-            <Typography variant="h5" style={{ fontWeight: 'bold', color: "#042f66" }} className={classes.title}>
+            <Typography
+              variant="h5"
+              style={{ fontWeight: "bold", color: "#042f66" }}
+              className={classes.title}
+            >
               Taskview
             </Typography>
             {isAuthenticatedVal.isAuthenticated ? authLinks : guestLinks}
@@ -146,13 +166,16 @@ const Navbar = () => {
             horizontal: "left",
           }}
         >
-          <ShareMenu handleClose={handleClose} />
+          {console.log(showShare)}
+          {showShare ? (
+            <ShareMenu handleClose={handleClose} />
+          ) : (
+            <Notifications handleClose={handleClose} />
+          )}
         </Popover>
-
       </div>
     </Fragment>
-  )
-
+  );
 };
 
 export default Navbar;

@@ -1,8 +1,9 @@
-import { PROJECT_CREATED, TASK_CREATED, GET_PROJECTS, PROJECT_DELETED, TASK_DELETED, TASK_EDITED } from "../constants/actionTypes";
+import { PROJECT_CREATED, TASK_CREATED, GET_PROJECTS, PROJECT_DELETED, TASK_DELETED, TASK_EDITED, USERS_COMMENT } from "../constants/actionTypes";
 
 const INIT_STATE = {
     project: {}, //the project being currently worked upon
-    projects: [] //all projects of logged in user
+    projects: [], //all projects of logged in user
+    usersWhoCommented: [] //users who commented on selected project
 };
 
 export default (state = INIT_STATE, action) => {
@@ -23,6 +24,9 @@ export default (state = INIT_STATE, action) => {
 
         case TASK_EDITED:
             return { ...state, project: action.payload };
+
+        case USERS_COMMENT:
+            return { ...state, usersWhoCommented: action.payload };
 
         default:
             return state;

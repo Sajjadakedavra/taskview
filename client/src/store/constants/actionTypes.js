@@ -18,3 +18,4 @@ export const GET_PROJECTS = "GET_PROJECTS";
 export const PROJECT_DELETED = "PROJECT_DELETED";
 export const TASK_DELETED = "TASK_DELETED";
 export const TASK_EDITED = "TASK_EDITED";
+export const USERS_COMMENT = "USERS_COMMENT";

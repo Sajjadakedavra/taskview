@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import DateRange from "./DateRange";
 import { createProject } from "../../store/action/project";
+import moment from "moment";
 
 const styles = {
   cardContainer: {
@@ -43,72 +44,34 @@ const styles = {
 const NewProject = ({ handleClose }) => {
 
   const dispatch = useDispatch();
-
-  const [selectedDate, handleDateChange] = useState(new Date());
-  const [tasksCount, setTasksCount] = useState(1);
-  const [anchorEl, setAnchorEl] = useState(null);
-
   const [projectName, setProjectName] = useState('');
   const [taskName, setTaskName] = useState('');
 
   const dateValueObj = useSelector(state => state.date);
-
+  // console.log("date val in NewProject is: ", moment(dateValueObj.date.startDateToUse).format("DD/MM/YYYY"));
   const tasks = [
     {
       name: taskName,
       description: '',
-      startDate: dateValueObj.date.startDateToUse,
-      endDate: dateValueObj.date.endDateToUse
+      // startDate: dateValueObj.date.startDateToUse,
+      // endDate: dateValueObj.date.endDateToUse
+      startDate: moment(dateValueObj.date.startDateToUse).format('DD MM YYYYThh:mm'),
+      endDate: moment(dateValueObj.date.endDateToUse).format('DD MM YYYYThh:mm'),
+      // startDate: moment(dateValueObj.date.startDateToUse).format("DD/MM/YYYY"),
+      // endDate: moment(dateValueObj.date.endDateToUse).format("DD/MM/YYYY")
     }
   ];
 
-  console.log(tasks);
 
   const createProjectAndReinitializeFields = () => {
     dispatch(createProject(projectName, tasks));
     setProjectName('');
     setTaskName('');
+    handleClose()
   }
 
 
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
-
-
-  const TaskRow = () => {
-    return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-        }}
-      >
-        <TextField
-          fullWidth={true}
-          variant="outlined"
-          size="small"
-          placeholder="Name"
-        />
-        <KeyboardDatePicker
-          autoOk
-          variant="inline"
-          inputVariant="outlined"
-          size="small"
-          format="MM/dd/yyyy"
-          value={selectedDate}
-          InputAdornmentProps={{ position: "start" }}
-          onChange={(date) => handleDateChange(date)}
-        />
-      </div>
-    );
-  };
 
   return (
     <Card style={styles.cardContainer}>
@@ -143,7 +106,6 @@ const NewProject = ({ handleClose }) => {
             >
               <InputLabel style={{ margin: 8 }}>Task</InputLabel>
               {/* <InputLabel style={{ margin: 8 }}>Due Date</InputLabel> */}
-              <InputLabel style={{ marginLeft: 8, marginTop: 10 }}>Date</InputLabel>
 
             </div>
             {/* <List disablePadding>
@@ -154,8 +116,7 @@ const NewProject = ({ handleClose }) => {
             <div
               style={{
                 display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
+                flexDirection: 'column'
               }}
             >
               <TextField
@@ -166,53 +127,17 @@ const NewProject = ({ handleClose }) => {
                 value={taskName}
                 onChange={(e) => setTaskName(e.target.value)}
               />
-              <Button aria-describedby={id}
-                onClick={handleClick}
-                size="small"
-              ><DateRangeIcon /></Button>
-              {/* <KeyboardDatePicker
-                autoOk
-                variant="inline"
-                inputVariant="outlined"
-                size="small"
-                format="MM/dd/yyyy"
-                value={selectedDate}
-                InputAdornmentProps={{ position: "start" }}
-                onChange={(date) => handleDateChange(date)}
-              /> */}
+              <InputLabel style={{ marginLeft: 8, marginTop: 10 }}>Date</InputLabel>
+
+              <DateRange />
+
             </div>
           </div>
-          {/* <Button
-            onClick={() => {
-              setTasksCount(tasksCount + 1);
-            }}
-            style={{ alignSelf: "flex-start" }}
-            color="primary"
-            size="small"
-            startIcon={<AddIcon />}
-          >
-            Add a new Task
-          </Button> */}
         </div>
         <Button onClick={() => { createProjectAndReinitializeFields() }} color="primary" size="small">
           Done
         </Button>
-        <Popover
-          id={id}
-          open={open}
-          anchorEl={anchorEl}
-          onClose={handleClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "left",
-          }}
-        >
-          <DateRange handleClose={handleClose} />
-        </Popover>
+
       </div>
     </Card>
   );

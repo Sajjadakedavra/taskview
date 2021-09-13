@@ -5,6 +5,7 @@ import {
   Divider,
   IconButton,
   InputAdornment,
+  ButtonBase,
   InputLabel,
   TextField,
   Typography,
@@ -14,10 +15,10 @@ import CancelIcon from "@material-ui/icons/Cancel";
 import SendIcon from "@material-ui/icons/SendRounded";
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { editTask } from "../../store/action/project";
+import { editTask, getAllUsersWhoCommented } from "../../store/action/project";
 
 const styles = {
   cardContainer: {
@@ -50,9 +51,29 @@ const ModifyProject = ({ handleClose, project }) => {
   const index = project.index
   const dispatch = useDispatch();
   const userDetails = useSelector(state => state.auth);
+  const usersWhoCommented = useSelector(state => state.project.usersWhoCommented)
+  const [commentToUserMapArr, setCommentToUseMapArr] = useState([]);
+  let commentsArr = [];
 
+  useEffect(() => {
+    dispatch(getAllUsersWhoCommented(project._id))
+  }, [dispatch])
 
+  console.log("users who commented are: ", usersWhoCommented);
 
+  useEffect(() => {
+    const arr = []
+    project.comments.forEach(comment => {
+      usersWhoCommented.map(user => (
+        { user: user._id === comment.user && arr.push({ comment: comment.text, user: user.name }) }
+      )
+      )
+    })
+    setCommentToUseMapArr([...arr])
+
+  }, [])
+
+  console.log("array is: ", commentToUserMapArr);
   const [edit, setEdit] = useState(true);
   const [deleteBtn, setDelete] = useState(false);
   const [duplicate, setDuplicate] = useState(false);
@@ -67,13 +88,13 @@ const ModifyProject = ({ handleClose, project }) => {
   const [startDate, setStartDate] = useState(moment(project.tasks[index].startDate, "DD MM YYYY").format("YYYY-MM-DDThh:mm"));
   const [endDate, setEndDate] = useState(moment(project.tasks[index].endDate, "DD MM YYYY").format("YYYY-MM-DDThh:mm"));
 
-  const [startDateToUse, setStartDateToUse] = useState(startDate);
-  const [endDateToUse, setEndDateToUse] = useState(endDate);
+  const [startDateToUse, setStartDateToUse] = useState(moment(project.tasks[index].startDate, "DD MM YYYY").format("DD-MM-YYYYThh:mm"));
+  const [endDateToUse, setEndDateToUse] = useState(moment(project.tasks[index].endDate, "DD MM YYYY").format("DD-MM-YYYYThh:mm"));
 
   const handleChangeForStartDate = (e) => {
     setStartDate(e.target.value);
     // setStartDateToUse(e.target.value); //if we wanna obtain normal date and time and not format it
-    setStartDateToUse(moment(e.target.value).format("DD MM YYYYThh:mm")); //if we wanna remove time and format
+    setStartDateToUse(moment(e.target.value).format("DD MM YYYYThh:mm"));
 
   };
 
@@ -82,7 +103,7 @@ const ModifyProject = ({ handleClose, project }) => {
     setEndDateToUse(moment(e.target.value).format("DD MM YYYYThh:mm"));
   };
 
-  // console.log("dates are: ", startDateToUse, endDateToUse);
+  // console.log("dates are: ", moment(startDateToUse).format("DD/MM/YYYY"), endDateToUse);
   // console.log(projectName, taskName, descriptionText, commentText)
 
   const handleChange = (event) => {
@@ -90,25 +111,44 @@ const ModifyProject = ({ handleClose, project }) => {
   };
 
 
-  const tasks = [
-    {
-      name: taskName,
-      description: descriptionText,
-      startDate: startDateToUse,
-      endDate: endDateToUse
-    }
-  ];
+  // const tasks = [
+  //   {
+  //     name: taskName,
+  //     description: descriptionText,
+  //     startDate: startDateToUse,
+  //     endDate: endDateToUse
+  //   }
+  // ];
+
+
+  const task =
+  {
+    name: taskName,
+    description: descriptionText,
+    startDate: startDateToUse,
+    endDate: endDateToUse
+  }
+
+  console.log("task in modifyProject are ", task)
 
   var editType = null;
 
-  if (commentText) {
-    editType = "commented on"
-  }
-  else {
-    editType = "edited"
-  }
+  // if (commentText) {
+  //   editType = "commented on"
+  //   commentsArr.push(commentText);
+  // }
+  // else {
+  //   editType = "edited"
+  //   commentsArr.pop(commentText);
+  // }
 
 
+
+  const task_id = project.tasks[index]._id;
+
+  const alteration = [
+    { editType }
+  ]
 
   const HeaderBar = () => (
     <div style={styles.projectBar}>
@@ -189,182 +229,15 @@ const ModifyProject = ({ handleClose, project }) => {
           variant="subtitle2"
           style={{ fontWeight: "bold", marginRight: 8 }}
         >
-          {comment.name}
+          {comment.user}
         </Typography>
-        <Typography style={{ color: "gray" }} variant="caption">
-          {" - " + comment.date.format("DD MM YYYY")}
-        </Typography>
+
       </div>
       <Typography style={{ color: "gray" }} variant="subtitle2">
         {comment.comment}
       </Typography>
     </div>
   );
-
-  // const Comments = () => (
-  //   <div
-  //     style={{
-  //       ...styles.flexColumn,
-  //       width: 250,
-  //       height: 540,
-  //       backgroundColor: "lightgrey",
-  //       padding: 8,
-  //     }}
-  //   >
-  //     <Typography>Comments</Typography>
-  //     <Divider variant="fullWidth" style={{ marginTop: 8, marginBottom: 8 }} />
-  //     <div
-  //       style={{
-  //         display: "flex",
-  //         flex: 1,
-  //         flexDirection: "column",
-  //         justifyContent: "space-between",
-  //       }}
-  //     >
-  //       <div>
-  //         {comments.map((comment) => (
-  //           <CommentItem comment={comment} />
-  //         ))}
-  //       </div>
-
-  //       <TextField
-  //         multiline={true}
-  //         variant="outlined"
-  //         size="small"
-  //         value={commentText}
-  //         onChange={e => setCommentText(e.target.value)}
-  //         style={{
-  //           backgroundColor: "white",
-  //           borderRadius: 4,
-  //         }}
-  //         rows={3}
-  //         InputProps={{
-  //           endAdornment: (
-  //             <InputAdornment class="marginDense" position="end">
-  //               <SendIcon style={{ color: "#042f66" }} fontSize="small" />
-  //             </InputAdornment>
-  //           ),
-  //         }}
-  //         placeholder={`Comment as ${userDetails.user.name}`}
-  //       />
-  //     </div>
-  //   </div>
-  // );
-
-  // const Editor = () => (
-  //   <div style={{ ...styles.flexColumn, width: 350, padding: 8 }}>
-  //     <div style={{ ...styles.flexRow }}>
-  //       <div style={{ marginRight: 4 }}>
-  //         <Typography style={{ fontWeight: "bold" }} variant="subtitle2">
-  //           Project Name
-  //         </Typography>
-  //         <TextField
-  //           name="name"
-  //           value={projectName}
-  //           onChange={e => setProjectName(e.target.value)}
-  //           style={{ marginBottom: 8 }}
-  //           variant="outlined"
-  //           size="small"
-  //         />
-  //       </div>
-  //       <div style={{ marginLeft: 4 }}>
-  //         <Typography style={{ fontWeight: "bold" }} variant="subtitle2">
-  //           Task Name
-  //         </Typography>
-  //         <TextField
-  //           name="name"
-  //           value={taskName}
-  //           onChange={e => setTaskName(e.target.value)}
-  //           style={{ marginBottom: 8 }}
-  //           variant="outlined"
-  //           size="small"
-  //         />
-  //       </div>
-  //     </div>
-  //     <TextField
-  //       multiline={true}
-  //       variant="outlined"
-  //       size="small"
-  //       style={{
-  //         backgroundColor: "white",
-  //         borderRadius: 4,
-  //         marginTop: 8,
-  //         marginBottom: 8,
-  //       }}
-  //       rows={5}
-  //     />
-  //     <Typography style={{ fontWeight: "bold" }} variant="subtitle2">
-  //       Start Date
-  //     </Typography>
-  //     <TextField
-  //       id="date"
-  //       type="datetime-local"
-  //       defaultValue="2021-11-15T10:30"
-  //       value={startDate}
-  //       onChange={(event) => handleChangeForStartDate(event)}
-  //       InputLabelProps={{
-  //         shrink: true,
-  //       }}
-  //     />
-  //     <Typography style={{ fontWeight: "bold" }} variant="subtitle2">
-  //       Due Date
-  //     </Typography>
-  //     <TextField
-  //       id="date"
-  //       type="datetime-local"
-  //       defaultValue="2021-11-15T10:30"
-  //       value={endDate}
-  //       onChange={(event) => handleChangeForEndDate(event)}
-  //       InputLabelProps={{
-  //         shrink: true,
-  //       }}
-  //     />
-  //     <div style={styles.flexRow}>
-  //       <div style={{ marginRight: 4 }}>
-  //         <Typography style={{ fontWeight: "bold" }} variant="subtitle2">
-  //           Priority
-  //         </Typography>
-  //         <Select
-  //           labelId="demo-simple-select-outlined-label"
-  //           id="demo-simple-select-outlined"
-  //           value={priority}
-  //           onChange={handleChange}
-  //           label="Age"
-  //         >
-  //           <MenuItem value="">
-  //             <em>None</em>
-  //           </MenuItem>
-  //           <MenuItem value={"high"}>high</MenuItem>
-  //           <MenuItem value={"moderate"}>moderate</MenuItem>
-  //           <MenuItem value={"low"}>low</MenuItem>
-  //         </Select>
-
-  //       </div>
-  //       <div style={{ marginleft: 4 }}>
-  //         <Typography style={{ fontWeight: "bold" }} variant="subtitle2">
-  //           Color
-  //         </Typography>
-  //         <Select
-  //           labelId="demo-simple-select-outlined-label"
-  //           id="demo-simple-select-outlined"
-  //           value={priority}
-  //           onChange={handleChange}
-  //           label="Age"
-  //         >
-  //           <MenuItem value="">
-  //             <em>None</em>
-  //           </MenuItem>
-  //           <MenuItem value={"high"}><div style={{ backgroundColor: "green" }}>&nbsp;</div></MenuItem>
-  //           <MenuItem value={"moderate"}><div style={{ backgroundColor: "orange" }}>&nbsp;</div></MenuItem>
-  //           <MenuItem value={"low"}><div style={{ backgroundColor: "red" }}>&nbsp;</div></MenuItem>
-  //         </Select>
-  //       </div>
-  //     </div>
-  //     {/* <Typography style={{ fontWeight: "bold" }} variant="subtitle2">
-  //       Files
-  //     </Typography> */}
-  //   </div>
-  // );
 
   return (
     <Card style={styles.cardContainer}>
@@ -489,7 +362,10 @@ const ModifyProject = ({ handleClose, project }) => {
           {/* <Typography style={{ fontWeight: "bold" }} variant="subtitle2">
         Files
       </Typography> */}
-          <Button variant="contained" color="primary" onClick={ }>
+          <Button variant="contained" color="primary" onClick={() => {
+            dispatch(editTask(project._id, task_id, projectName, project.comments, task, editType))
+            handleClose()
+          }}>
             Apply Changes
           </Button>
         </div>
@@ -515,7 +391,7 @@ const ModifyProject = ({ handleClose, project }) => {
             }}
           >
             <div>
-              {comments.map((comment) => (
+              {commentToUserMapArr.map((comment) => (
                 <CommentItem comment={comment} />
               ))}
             </div>
@@ -534,7 +410,13 @@ const ModifyProject = ({ handleClose, project }) => {
               InputProps={{
                 endAdornment: (
                   <InputAdornment class="marginDense" position="end">
-                    <SendIcon style={{ color: "#042f66" }} fontSize="small" />
+                    <ButtonBase onClick={() => {
+                      project.comments.push({ user: userDetails.user._id, text: commentText })
+                      setCommentToUseMapArr([...commentToUserMapArr, { comment: commentText, user: userDetails.user.name }])
+                    }} >
+
+                      <SendIcon style={{ color: "#042f66" }} fontSize="small" />
+                    </ButtonBase>
                   </InputAdornment>
                 ),
               }}

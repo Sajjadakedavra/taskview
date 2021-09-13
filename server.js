@@ -31,10 +31,12 @@ io.on("connection", (socket) => {
     });
 
     socket.on("notification", async (data) => {
-        const index = connectedUsers.findIndex(({ name }) => name === data.name);
-        index > -1 &&
-            io.to(connectedUsers[index].socketid).emit("notification", data);
-        // add to dB
+        // const index = connectedUsers.findIndex(({ name }) => name === data.name);
+        // index > -1 &&
+        //     io.to(connectedUsers[index].socketid).emit("notification", data);
+        // // add to dB
+        console.log('not rec', data)
+        socket.broadcast.emit('notification', data);
     });
 
     socket.on("disconnect", (reason) => {

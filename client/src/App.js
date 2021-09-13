@@ -21,6 +21,8 @@ import DateTime from './components/myProjects/DateTime';
 import { loadUser } from './store/action/auth';
 import setAuthToken from './utils/setAuthToken';
 import Signup from './components/myProjects/Signup';
+import socket from "./utils/socketConn";
+import AddNewTask from './components/myProjects/AddNewTask';
 
 if (localStorage.token) {
   setAuthToken(localStorage.token);
@@ -31,7 +33,8 @@ const App = () => {
 
   const dispatch = useDispatch();
   const projectObj = useSelector(state => state.project);
-  console.log("fecthed projects are: ", projectObj.projects); //for all projects
+
+  const isAuthenticatedVal = useSelector(state => state.auth);
 
   //get user details if user is logged in already
   useEffect(() => {
@@ -39,7 +42,9 @@ const App = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    localStorage.getItem("token") && socket.getInstance(isAuthenticatedVal.user.name); //user name here
+    isAuthenticatedVal?.user &&
+      localStorage.getItem("token") &&
+      socket.getInstance(isAuthenticatedVal.user.name);
   }, [isAuthenticatedVal]);
 
 
@@ -52,13 +57,23 @@ const App = () => {
           <Switch>
             <Route exact path='/' component={Home} />
             <Route exact path='/side-view' component={Dashboard} />
-            <Route exact path='/login' component={Login} />
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 24 }}>
+              <Route exact path='/login' component={Login} />
               <Route exact path='/signup' component={Signup} />
             </div>
+
+            {/* { !isAuthenticatedVal.isAuthenticated ?
+              (<Route exact path='/login' component={Login} />) : (<Route exact path='/' component={Home} />)}
+            {!isAuthenticatedVal.isAuthenticated ? (
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 24 }}>
+                <Route exact path='/signup' component={Signup} />
+              </div>
+            ) : (<Redirect to='/' component={Home} />)} */}
+
             <Route exact path='/task-create' component={TaskCreate} />
             <Route exact path='/notifications' component={Notifications} />
             <Route exact path='/date-time' component={DateTime} />
+            <Route exact path='/add-new-task' component={AddNewTask} />
           </Switch>
         </Fragment>
       </Router>

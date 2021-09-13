@@ -1,5 +1,6 @@
-import { PROJECT_CREATED, TASK_CREATED, GET_PROJECTS, PROJECT_DELETED, TASK_DELETED, TASK_EDITED } from "../constants/actionTypes";
+import { PROJECT_CREATED, TASK_CREATED, GET_PROJECTS, PROJECT_DELETED, TASK_DELETED, TASK_EDITED, USERS_COMMENT } from "../constants/actionTypes";
 import axios from "axios";
+import socket from "../../utils/socketConn";
 
 export const createProject = (name, tasks) => async dispatch => {
 
@@ -35,7 +36,9 @@ export const createTask = (project_id, tasks, editType) => async dispatch => {
 
     try {
         const res = await axios.put(`/api/projects/${project_id}`, body, config);
+        socket._instance && socket._instance.emit('notification', res.data)
         dispatch({ type: TASK_CREATED, payload: res.data });
+        console.log("task created successfully");
 
     } catch (err) {
         if (err) {
@@ -45,7 +48,7 @@ export const createTask = (project_id, tasks, editType) => async dispatch => {
 }
 
 
-export const editTask = (project_id, task_id, projectName, comments, tasks, alteration) => async dispatch => {
+export const editTask = (project_id, task_id, projectName, comments, task, editType) => async dispatch => {
 
     const config = {
         headers: {
@@ -53,18 +56,32 @@ export const editTask = (project_id, task_id, projectName, comments, tasks, alte
         }
     }
 
-    const body = { name: projectName, tasks, comments, alteration };
+    const body = { name: projectName, task, comments, editType };
 
     try {
-        const res = await axios.put(`/api/projects/${project_id}/${task_id}`, body, config);
+        const res = await axios.patch(`/api/projects/${project_id}/${task_id}`, body, config);
         dispatch({ type: TASK_EDITED, payload: res.data });
-
+        console.log("task edited and dispatched")
     } catch (err) {
         if (err) {
             console.error(err);
         }
     }
 }
+
+
+
+//Get all users who commented on a selected project
+export const getAllUsersWhoCommented = (project_id) => async dispatch => {
+
+    try {
+        const res = await axios.get(`/api/projects/${project_id}`);
+
+        dispatch({ type: USERS_COMMENT, payload: res.data });
+    } catch (err) {
+        console.log(err);
+    }
+};
 
 
 //Get all projects of user

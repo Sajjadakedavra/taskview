@@ -138,7 +138,7 @@ router.put('/:id', auth, async (req, res) => {
         // let newProject = await Project.findOneAndUpdate({ _id: req.params.id }, { $push: { tasks: req.body.tasks } } ); 
         let newProject = await Project.findOneAndUpdate({ _id: req.params.id }, { $push: { tasks: req.body.tasks } }, { new: true });
 
-        let newestproject = await Project.findOneAndUpdate({ _id: req.params.id }, { $push: { alteration: { _id: mongoose.Types.ObjectId(req.user.id), editType: req.body.editType, documentRef: mongoose.Types.ObjectId(newProject.tasks[newProject.tasks.length - 1]._id) } } }, { new: true });
+        let newestproject = await Project.findOneAndUpdate({ _id: req.params.id }, { $push: { alteration: { user: mongoose.Types.ObjectId(req.user.id), editType: req.body.editType, documentRef: mongoose.Types.ObjectId(newProject.tasks[newProject.tasks.length - 1]._id) } } }, { new: true });
         console.log(`\n\nprojectd return: ${newestproject}\n\n`);
 
         // await project.save();
@@ -168,15 +168,13 @@ router.patch('/:project_id/:task_id', auth, async (req, res) => {
         let index = taskArr.findIndex(task => task._id.toString() === req.params.task_id);
 
         if (index > -1) {
-            taskArr[index] = { _id: mongoose.Types.ObjectId(req.params.task_id), ...req.body.task }
-            // if (req.body.text) {
+            taskArr[index] = { _id: mongoose.Types.ObjectId(req.params.task_id), name: req.body.task.name, description: req.body.task.description, startDate: req.body.task.startDate, endDate: req.body.task.endDate }
+
             console.log("if running")
-            await Project.updateOne({ _id: req.params.project_id }, { name: req.body.name, comments: commentsArr, tasks: taskArr, $push: { alteration: { user: req.user.id, editType: req.body.editType, documentRef: req.params.task_id } } });
-            // }
-            // else {
-            // await Project.updateOne({ _id: req.params.project_id }, { name: req.body.name, tasks: taskArr, $push: { alteration: { user: req.user.id, editType: req.body.editType, documentRef: req.params.task_id } } });
-            // }
+            await Project.updateOne({ _id: req.params.project_id }, { name: req.body.name, comments: commentsArr, tasks: taskArr, $push: { alteration: { user: mongoose.Types.ObjectId(req.user.id), editType: req.body.editType, documentRef: mongoose.Types.ObjectId(req.params.task_id) } } });
+
         }
+        console.log("---------------->>", req.body.task)
 
         res.json(project)
     } catch (err) {
@@ -244,5 +242,31 @@ router.delete('/:project_id/:task_id', auth, async (req, res) => {
     }
 })
 
+
+
+// @route GET api/projects/:project_id/
+// @desc  get all users who comment on selected project
+// @access Private
+router.get('/:project_id/', auth, async (req, res) => {
+
+    try {
+
+        const project = await Project.findOne({ _id: req.params.project_id })
+
+        let ids = []
+        var projects;
+
+        project.comments.map((comment, index) => (
+            ids.push(comment.user._id)
+        ))
+
+        users = await User.find().where('_id').in(ids).exec()
+        res.json(users)
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+})
 
 module.exports = router;

@@ -10,9 +10,12 @@ import {
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import AddIcon from "@material-ui/icons/Add";
+import AssignmentIcon from '@material-ui/icons/Assignment';
+import Button from '@material-ui/core/Button';
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import NewProject from "./NewProject";
+import AddNewTask from "./AddNewTask";
 
 const data = [
   { id: 0, name: "Project 1", tasks: [{ id: 0, name: "Task 1" }] },
@@ -50,14 +53,27 @@ const styles = {
 const SideView = () => {
 
   const projectObj = useSelector(state => state.project);
+  const [project, setProject] = useState({});
+  const [showShare, setShowShare] = useState(true);
   // console.log("side view projects: ", projectObj.projects.projects);
 
   const [anchorEl, setAnchorEl] = useState(null);
+
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
+  const handleCLickShare = (event) => {
+    setShowShare(true);
+    handleClick(event);
+  };
+
+  const handleCLickNotif = (event, project) => {
+    setProject(project)
+    setShowShare(false);
+    handleClick(event);
+  };
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -71,7 +87,7 @@ const SideView = () => {
         <Typography>Projects</Typography>
         <IconButton
           aria-describedby={id}
-          onClick={handleClick}
+          onClick={handleCLickShare}
           style={{ color: "white" }}
           fontSize="small"
         >
@@ -92,7 +108,12 @@ const SideView = () => {
           horizontal: "left",
         }}
       >
-        <NewProject handleClose={handleClose} />
+
+        {showShare ? (
+          <NewProject handleClose={handleClose} />
+        ) : (
+          <AddNewTask handleClose={handleClose} />
+        )}
       </Popover>
 
       <List disablePadding>
@@ -102,17 +123,45 @@ const SideView = () => {
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography>{project.name}</Typography>
               </AccordionSummary>
-              {project.tasks.map((task) => (
+              {project.tasks.map((task, i) => (
                 <AccordionDetails>
                   <Typography style={{ paddingLeft: 4 }}>
                     {task.name}
                   </Typography>
                 </AccordionDetails>
               ))}
+
+              <Button aria-describedby={id}
+                onClick={(event) => handleCLickNotif(event, project)}
+                style={{ paddingLeft: 16 }} >Add new task <AssignmentIcon fontSize='small' /></Button>
+
+
             </Accordion>
           </div>
         ))}
       </List>
+
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+      >
+
+        {showShare ? (
+          <NewProject handleClose={handleClose} />
+        ) : (
+          <AddNewTask handleClose={handleClose} project={project} />
+        )}
+      </Popover>
     </Card>
   );
 };
