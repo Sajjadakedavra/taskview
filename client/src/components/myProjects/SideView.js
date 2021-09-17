@@ -118,13 +118,13 @@ const SideView = () => {
 
       <List disablePadding>
         {projectObj.projects.projects.map((project) => (
-          <div>
+          <div key={project._id}>
             <Accordion square>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography>{project.name}</Typography>
               </AccordionSummary>
               {project.tasks.map((task, i) => (
-                <AccordionDetails>
+                <AccordionDetails key={i}>
                   <Typography style={{ paddingLeft: 4 }}>
                     {task.name}
                   </Typography>

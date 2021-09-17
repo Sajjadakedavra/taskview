@@ -1,4 +1,4 @@
-import { PROJECT_CREATED, TASK_CREATED, GET_PROJECTS, PROJECT_DELETED, TASK_DELETED, TASK_EDITED, USERS_COMMENT } from "../constants/actionTypes";
+import { PROJECT_CREATED, TASK_CREATED, GET_PROJECTS, PROJECT_DELETED, TASK_DELETED, TASK_EDITED, TASK_DUPLICATED, USERS_COMMENT } from "../constants/actionTypes";
 
 const INIT_STATE = {
     project: {}, //the project being currently worked upon
@@ -23,6 +23,7 @@ export default (state = INIT_STATE, action) => {
             return { ...state, project: action.payload };
 
         case TASK_EDITED:
+        case TASK_DUPLICATED:
             return { ...state, project: action.payload };
 
         case USERS_COMMENT:

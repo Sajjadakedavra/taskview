@@ -24,6 +24,10 @@ const ProjectSchema = new mongoose.Schema({
             }
         }
     ],
+    priority: {
+        type: String,
+        default: ''
+    },
     comments: [
         {
             user: {

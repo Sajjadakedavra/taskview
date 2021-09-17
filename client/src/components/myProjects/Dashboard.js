@@ -30,9 +30,10 @@ const styles = {
 };
 
 const legends = [
-  { color: "pink", name: "High Priority" },
-  { color: "royalblue", name: "Medium Priority" },
-  { color: "grey", name: "Low Priority" },
+  { color: "purple", name: "High Priority" },
+  { color: "orange", name: "Medium Priority" },
+  { color: "green", name: "Low Priority" },
+  { color: "royalblue", name: "No priority" },
 ];
 
 const Dashboard = ({ projects }) => {
@@ -91,8 +92,8 @@ const Dashboard = ({ projects }) => {
           Legend
         </Button>
         <List style={{ display: "flex", flexDirection: "row" }}>
-          {legends.map((legend) => (
-            <div
+          {legends.map((legend, i) => (
+            <div key={i}
               style={{
                 display: "flex",
                 flexDirection: "row",

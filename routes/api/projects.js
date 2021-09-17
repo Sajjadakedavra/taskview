@@ -36,6 +36,7 @@ router.post('/', auth, async (req, res) => {
                     var project = await new Project({
                         name: req.body.name,
                         tasks: req.body.tasks,
+                        priority: req.body.priority,
                         comments: { _id: mongoose.Types.ObjectId(req.user.id), text: req.body.comments[0].text }
                     }).save();
                 }
@@ -266,6 +267,91 @@ router.get('/:project_id/', auth, async (req, res) => {
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
+    }
+})
+
+
+
+// @route GET api/projects/share
+// @desc  share project with user via email 
+// @access Private
+router.post('/share/:project_id', auth, async (req, res) => {
+    try {
+
+        const user = await User.findOne({ email: req.body.email });
+
+        if (!user) {
+            return res.json({ msg: "user does not exist" })
+        }
+
+        const project = await Project.findOne({ _id: req.params.project_id });
+
+        await user.projects.unshift(project._id);
+
+        await user.save();
+
+        res.json(user);
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+})
+
+
+
+
+// @route POST api/projects/:project_id/
+// @desc  Duplicate a task in a project
+// @access Private
+router.post('/:id/', auth, async (req, res) => {
+
+    try {
+
+        const project = await Project.findById(req.params.id);
+
+        if (!project) {
+            return res.json({ msg: "project does not exist" });
+        }
+
+        let newProject = await Project.findOneAndUpdate({ _id: req.params.id }, { $push: { tasks: req.body.task } }, { new: true });
+
+
+        res.json(newProject);
+
+    } catch (err) {
+
+        console.error(err.message);
+        res.status(500).send('Server Error');
+
+    }
+})
+
+
+
+
+// @route POST api/projects/priority/:id/
+// @desc  Change project priority
+// @access Private
+router.post('/priority/:id/', auth, async (req, res) => {
+
+    try {
+
+        const project = await Project.findById(req.params.id);
+
+        if (!project) {
+            return res.json({ msg: "project does not exist" });
+        }
+
+        let newProject = await Project.findOneAndUpdate({ _id: req.params.id }, { priority: req.body.priority }, { new: true });
+
+        res.json(newProject);
+
+    } catch (err) {
+
+        console.error(err.message);
+        res.status(500).send('Server Error');
+
     }
 })
 

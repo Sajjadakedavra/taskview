@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 
@@ -13,7 +14,8 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import { IconButton } from '@material-ui/core';
 import CancelIcon from "@material-ui/icons/Cancel";
-
+import { getAllProjects } from '../../store/action/project';
+import { shareProject } from '../../store/action/project';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -57,15 +59,34 @@ const styles = {
 }
 
 export default function ShareMenu({ handleClose }) {
+
+  const dispatch = useDispatch();
+
+  const [userEmail, setUserEmail] = useState('');
+
+  const projectObj = useSelector(state => state.project);
+
+  useEffect(() => {
+    dispatch(getAllProjects())
+  }, [dispatch])
+
+
+
   const classes = useStyles();
 
   const [age, setAge] = useState('');
-  console.log(age)
+
 
   const handleChange = (event) => {
     setAge(event.target.value);
     console.log(event.target.value)
   };
+
+
+  const executeShareAndHandleClose = () => {
+    dispatch(shareProject(age._id, userEmail));
+    handleClose();
+  }
 
   const data = [
     { id: 0, name: "Project 1", tasks: [{ id: 0, name: "Task 1" }] },
@@ -112,9 +133,9 @@ export default function ShareMenu({ handleClose }) {
               id="demo-simple-select"
               value={age}
             >
-              {data.map(project => (
-                <div key={project.id}>
-                  <Button value={age.name} onClick={() => setAge(project)}>{project.name}</Button>
+              {projectObj.projects.projects.map(project => (
+                <div key={project._id}>
+                  <MenuItem value={age.name}><Button value={age.name} onClick={() => setAge(project)}>{project.name}</Button></MenuItem>
                 </div>
               ))
               }
@@ -125,18 +146,18 @@ export default function ShareMenu({ handleClose }) {
             Share Link
           </Typography>
           <div style={styles.row}>
-            <TextField size='small' fullWidth id="outlined-basic" label="www.myLink.com/link" variant="outlined" />
-            <Button style={{ marginLeft: 8 }} variant="outlined">Editor</Button>
-            <Button style={{ marginLeft: 8 }} variant="outlined">Copy</Button>
+            <TextField size='small' fullWidth id="outlined-basic" label={age?.name ? `${age.name} will be shared` : 'Select project to share'} variant="outlined" />
+            {/* <Button style={{ marginLeft: 8 }} variant="outlined">Editor</Button>
+            <Button style={{ marginLeft: 8 }} variant="outlined">Copy</Button> */}
           </div>
           <Typography style={{ padding: 8 }}
             variant="body1">
             Email/Note
           </Typography>
           <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <TextField size='small' fullWidth id="outlined-basic" rows={4} multiline label="Add all emails you want to send" variant="outlined" />
-            <Button style={{ marginLeft: 8, maxHeight: 40 }} variant="outlined">Viewer</Button>
-            <Button style={{ marginLeft: 8, maxHeight: 40 }} variant="outlined">Send</Button>
+            <TextField size='small' fullWidth id="outlined-basic" rows={4} multiline label="Add single email you want to send to" variant="outlined" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} />
+            {/* <Button style={{ marginLeft: 8, maxHeight: 40 }} variant="outlined">Viewer</Button> */}
+            <Button style={{ marginLeft: 8, maxHeight: 40 }} variant="outlined" onClick={() => executeShareAndHandleClose()}>Send</Button>
           </div>
         </div>
 

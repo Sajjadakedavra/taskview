@@ -107,7 +107,7 @@ const Navbar = () => {
         Share
       </Button>
 
-      <Button
+      {/* <Button
         name="notifications"
         aria-describedby={id}
         onClick={(event) => handleCLickNotif(event)}
@@ -115,7 +115,7 @@ const Navbar = () => {
         size="large"
         className={classes.buttonSpacing}
         startIcon={<NotificationsIcon />}
-      ></Button>
+      ></Button> */}
 
       <Button
         name="profile"

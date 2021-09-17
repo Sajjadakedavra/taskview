@@ -201,7 +201,7 @@ const MonthTimeline = ({ projects }) => {
           <div style={{ width: 300 }}></div>
           <div style={{ ...styles.flexRow, marginLeft: 300 }}>
             {[...Array(monthsDiff)].map((x, index) => (
-              <div>
+              <div key={index}>
                 <div
                   style={{
                     ...styles.monthsListContainer,
@@ -249,7 +249,7 @@ const MonthTimeline = ({ projects }) => {
                 <AccordionSummary
                   style={{
                     ...styles.accordion,
-                    backgroundColor: "royalblue",
+                    backgroundColor: project.priority ? (project.priority === 'high' ? 'purple' : (project.priority === 'moderate' ? 'orange' : (project.priority === 'low' && 'green'))) : "royalblue",
                   }}
                   expandIcon={<ExpandMoreIcon />}
                 >
@@ -309,10 +309,10 @@ const MonthTimeline = ({ projects }) => {
                                 style={{
                                   ...styles.gridBoxContainer,
                                   borderColor: compareResult
-                                    ? "royalblue"
+                                    ? project.priority ? (project.priority === 'high' ? 'purple' : (project.priority === 'moderate' ? 'orange' : (project.priority === 'low') && 'green')) : "royalblue"
                                     : "lightGrey",
                                   backgroundColor: compareResult
-                                    ? "royalblue"
+                                    ? project.priority ? (project.priority === 'high' ? 'purple' : (project.priority === 'moderate' ? 'orange' : (project.priority === 'low') && 'green')) : "royalblue"
                                     : "#f5f5f5",
                                 }}
                               >
@@ -458,7 +458,7 @@ const WeekTimeline = ({ projects }) => {
                 <AccordionSummary
                   style={{
                     ...styles.accordion,
-                    backgroundColor: "royalblue",
+                    backgroundColor: project.priority ? (project.priority === 'high' ? 'purple' : (project.priority === 'moderate' ? 'orange' : (project.priority === 'low' && 'green'))) : "royalblue",
                   }}
                   expandIcon={<ExpandMoreIcon />}
                 >
@@ -510,10 +510,10 @@ const WeekTimeline = ({ projects }) => {
                               style={{
                                 ...styles.gridBoxContainer,
                                 borderColor: compareResult
-                                  ? "royalblue"
+                                  ? project.priority ? (project.priority === 'high' ? 'purple' : (project.priority === 'moderate' ? 'orange' : (project.priority === 'low') && 'green')) : "royalblue"
                                   : "lightGrey",
                                 backgroundColor: compareResult
-                                  ? "royalblue"
+                                  ? project.priority ? (project.priority === 'high' ? 'purple' : (project.priority === 'moderate' ? 'orange' : (project.priority === 'low') && 'green')) : "royalblue"
                                   : "#f5f5f5",
                               }}
                             >

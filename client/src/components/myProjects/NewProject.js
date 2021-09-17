@@ -46,6 +46,7 @@ const NewProject = ({ handleClose }) => {
   const dispatch = useDispatch();
   const [projectName, setProjectName] = useState('');
   const [taskName, setTaskName] = useState('');
+  const [priority, setPriority] = useState('');
 
   const dateValueObj = useSelector(state => state.date);
   // console.log("date val in NewProject is: ", moment(dateValueObj.date.startDateToUse).format("DD/MM/YYYY"));
@@ -57,6 +58,7 @@ const NewProject = ({ handleClose }) => {
       // endDate: dateValueObj.date.endDateToUse
       startDate: moment(dateValueObj.date.startDateToUse).format('DD MM YYYYThh:mm'),
       endDate: moment(dateValueObj.date.endDateToUse).format('DD MM YYYYThh:mm'),
+      priority
       // startDate: moment(dateValueObj.date.startDateToUse).format("DD/MM/YYYY"),
       // endDate: moment(dateValueObj.date.endDateToUse).format("DD/MM/YYYY")
     }
@@ -64,7 +66,7 @@ const NewProject = ({ handleClose }) => {
 
 
   const createProjectAndReinitializeFields = () => {
-    dispatch(createProject(projectName, tasks));
+    dispatch(createProject(projectName, tasks, priority));
     setProjectName('');
     setTaskName('');
     handleClose()

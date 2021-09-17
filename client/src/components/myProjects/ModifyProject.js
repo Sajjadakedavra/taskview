@@ -18,7 +18,7 @@ import Select from '@material-ui/core/Select';
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { editTask, getAllUsersWhoCommented } from "../../store/action/project";
+import { editTask, getAllUsersWhoCommented, deleteTask, duplicateTask } from "../../store/action/project";
 
 const styles = {
   cardContainer: {
@@ -55,11 +55,12 @@ const ModifyProject = ({ handleClose, project }) => {
   const [commentToUserMapArr, setCommentToUseMapArr] = useState([]);
   let commentsArr = [];
 
+
   useEffect(() => {
     dispatch(getAllUsersWhoCommented(project._id))
   }, [dispatch])
 
-  console.log("users who commented are: ", usersWhoCommented);
+  // console.log("users who commented are: ", usersWhoCommented);
 
   useEffect(() => {
     const arr = []
@@ -70,20 +71,35 @@ const ModifyProject = ({ handleClose, project }) => {
       )
     })
     setCommentToUseMapArr([...arr])
+  }, [usersWhoCommented])
 
+  const [taskDuplicate, setTaskDuplicate] = useState({
+    name: '',
+    description: '',
+    startDate: '',
+    endDate: '',
+  });
+  useEffect(() => {
+    setTaskDuplicate({
+      name: project.tasks[index].name,
+      description: project.tasks[index].description,
+      startDate: project.tasks[index].startDate,
+      endDate: project.tasks[index].endDate
+    })
   }, [])
+  // console.log("task duplicate is: ", taskDuplicate)
 
-  console.log("array is: ", commentToUserMapArr);
+  // console.log("array is: ", commentToUserMapArr);
   const [edit, setEdit] = useState(true);
   const [deleteBtn, setDelete] = useState(false);
   const [duplicate, setDuplicate] = useState(false);
 
   const [projectName, setProjectName] = useState(project.name);
   const [taskName, setTaskName] = useState(project.tasks[index].name);
-  const [descriptionText, setDescriptionText] = useState('');
+  const [descriptionText, setDescriptionText] = useState(project.tasks[index].description);
   const [commentText, setCommentText] = useState('');
 
-  const [priority, setPriority] = useState('');
+  const [priority, setPriority] = useState(project.priority ? project.priority : '');
 
   const [startDate, setStartDate] = useState(moment(project.tasks[index].startDate, "DD MM YYYY").format("YYYY-MM-DDThh:mm"));
   const [endDate, setEndDate] = useState(moment(project.tasks[index].endDate, "DD MM YYYY").format("YYYY-MM-DDThh:mm"));
@@ -129,7 +145,7 @@ const ModifyProject = ({ handleClose, project }) => {
     endDate: endDateToUse
   }
 
-  console.log("task in modifyProject are ", task)
+  // console.log("task in modifyProject are ", task)
 
   var editType = null;
 
@@ -149,6 +165,18 @@ const ModifyProject = ({ handleClose, project }) => {
   const alteration = [
     { editType }
   ]
+
+
+  // const taskDuplicate = {
+  //   name: project.tasks[index].name,
+  //   description: project.tasks[index].description,
+  //   startDate: project.tasks[index].startDate,
+  //   endDate: project.tasks[index].endDate
+  // }
+
+
+  // console.log(`project id is ${project._id} and task id is ${project.tasks[index]._id}`);
+  // console.log("prioruty is: ", priority)
 
   const HeaderBar = () => (
     <div style={styles.projectBar}>
@@ -326,7 +354,7 @@ const ModifyProject = ({ handleClose, project }) => {
               <Select
                 labelId="demo-simple-select-outlined-label"
                 id="demo-simple-select-outlined"
-                value={priority}
+                value={priority ? priority : (project.priority ? project.priority : priority)}//{project.priority ? project.priority : priority}
                 onChange={handleChange}
                 label="Age"
               >
@@ -346,16 +374,16 @@ const ModifyProject = ({ handleClose, project }) => {
               <Select
                 labelId="demo-simple-select-outlined-label"
                 id="demo-simple-select-outlined"
-                value={priority}
+                value={priority ? priority : (project.priority ? project.priority : priority)}  //this depends on priority. high=purple and so on
                 onChange={handleChange}
                 label="Age"
               >
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-                <MenuItem value={"high"}><div style={{ backgroundColor: "green" }}>&nbsp;</div></MenuItem>
-                <MenuItem value={"moderate"}><div style={{ backgroundColor: "orange" }}>&nbsp;</div></MenuItem>
-                <MenuItem value={"low"}><div style={{ backgroundColor: "red" }}>&nbsp;</div></MenuItem>
+                <MenuItem value={"high"}><div style={{ backgroundColor: "purple" }}>&nbsp;</div></MenuItem>
+                <MenuItem value={"moderate"}><div style={{ backgroundColor: "red" }}>&nbsp;</div></MenuItem>
+                <MenuItem value={"low"}><div style={{ backgroundColor: "green" }}>&nbsp;</div></MenuItem>
               </Select>
             </div>
           </div>
@@ -363,10 +391,24 @@ const ModifyProject = ({ handleClose, project }) => {
         Files
       </Typography> */}
           <Button variant="contained" color="primary" onClick={() => {
-            dispatch(editTask(project._id, task_id, projectName, project.comments, task, editType))
+            dispatch(editTask(project._id, task_id, projectName, project.comments, task, editType, priority))
             handleClose()
           }}>
             Apply Changes
+          </Button>
+
+          <Button variant="contained" color="inherit" style={{ marginTop: 20 }} onClick={() => {
+            dispatch(duplicateTask(project._id, taskDuplicate))
+            handleClose()
+          }}>
+            Duplicate task {project.tasks[index].name}
+          </Button>
+
+          <Button variant="contained" color="secondary" style={{ marginTop: 20 }} onClick={() => {
+            dispatch(deleteTask(project._id, task_id))
+            handleClose()
+          }}>
+            Delete task {project.tasks[index].name}
           </Button>
         </div>
 
